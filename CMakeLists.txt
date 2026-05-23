@@ -22,7 +22,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project(BCG729 VERSION 1.1.1 LANGUAGES C)
+project(BCG729 VERSION 1.1.2 LANGUAGES C)
 
 
 set(PACKAGE "${PROJECT_NAME}")
@@ -51,6 +51,26 @@ add_definitions(-DHAVE_CONFIG_H)
 
 if(MSVC)
 	add_definitions("/W3")
+	
+	string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" TARGET_ARCH)
+    
+    message(STATUS "CMake System Processor: ${CMAKE_SYSTEM_PROCESSOR}")
+    message(STATUS "CMake Generator Platform (Target): ${TARGET_ARCH}")
+    
+    if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+        set(ACTUAL_SDK_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+    else()
+        set(ACTUAL_SDK_VERSION "${CMAKE_SYSTEM_VERSION}")
+    endif()
+    
+    message(STATUS "Detected Windows SDK Version: ${ACTUAL_SDK_VERSION}")
+    # if win 10 or newer, no need to use the header present in include/MSVC dir
+    if(TARGET_ARCH STREQUAL "ARM64" OR CMAKE_C_COMPILER_ARCHITECTURE_ID STREQUAL "ARM64")
+        if(ACTUAL_SDK_VERSION VERSION_GREATER_EQUAL "10.0.26100.0" OR ACTUAL_SDK_VERSION STREQUAL "10.0")
+            message(STATUS "Disable legacy search paths for MSVC.")
+            set(DISABLE_LEGACY_MSVC_HEADERS TRUE)
+        endif()
+    endif()
 else()
 	add_definitions("-Wall")
 	if(ENABLE_STRICT)
@@ -68,7 +88,13 @@ endif()
 
 configure_file(${PROJECT_SOURCE_DIR}/config.h.cmake ${PROJECT_BINARY_DIR}/config.h)
 
-add_subdirectory(include)
+if(DISABLE_LEGACY_MSVC_HEADERS)
+	include_directories(include)
+	add_subdirectory(include/bcg729)
+else()
+	add_subdirectory(include)
+endif()
+include_directories(${PROJECT_BINARY_DIR})
 add_subdirectory(src)
 if(ENABLE_UNIT_TESTS AND NOT WIN32)
 	# Deactivated on Windows because of symbol export issues (TODO: fix that)
