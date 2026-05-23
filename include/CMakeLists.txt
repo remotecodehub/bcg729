@@ -21,10 +21,10 @@
 ############################################################################
 
 if(NOT DISABLE_LEGACY_MSVC_HEADERS)
-    message(STATUS "[bcg729/include] Incluindo headers legados da pasta MSVC (x64/x86 ou SDK antigo).")
+    message(STATUS "Including old stdint.h legacy header of MSVC directory (x64/x86 or old SDK).")
     include_directories(MSVC)
 else()
-    message(STATUS "[bcg729/include] Alvo ARM64 Moderno detectado. Omitindo diretório MSVC.")
+    message(STATUS "Detecting Modern ARM64. Bypass MSVC directory.")
 endif()
 
 set(HEADER_FILES
