@@ -20,18 +20,25 @@
 #
 ############################################################################
 
+if(NOT DISABLE_LEGACY_MSVC_HEADERS)
+    message(STATUS "[bcg729/include] Incluindo headers legados da pasta MSVC (x64/x86 ou SDK antigo).")
+    include_directories(MSVC)
+else()
+    message(STATUS "[bcg729/include] Alvo ARM64 Moderno detectado. Omitindo diretório MSVC.")
+endif()
+
 set(HEADER_FILES
-	decoder.h
-	encoder.h
+    decoder.h
+    encoder.h
 )
 
 set(BCG729_HEADER_FILES )
 foreach(HEADER_FILE ${HEADER_FILES})
-	list(APPEND BCG729_HEADER_FILES "${CMAKE_CURRENT_LIST_DIR}/bcg729/${HEADER_FILE}")
+    list(APPEND BCG729_HEADER_FILES "${CMAKE_CURRENT_LIST_DIR}/bcg729/${HEADER_FILE}")
 endforeach()
 set(BCG729_HEADER_FILES ${BCG729_HEADER_FILES} PARENT_SCOPE)
 
 install(FILES ${BCG729_HEADER_FILES}
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bcg729
-	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bcg729
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 )
